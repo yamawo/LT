@@ -1,6 +1,6 @@
 ---
 theme: apple-basic
-# OGPやタブ名などで使われる
+# OGPやタブ名などで使う
 title: "gRPCについて学びました"
 # 使用される画像群
 background: https://source.unsplash.com/collection/94734566/1920x1080
@@ -12,6 +12,7 @@ class: "text-center"
 highlighter: shiki
 # show line numbers in code blocks
 lineNumbers: false
+layout: intro
 # persist drawings in exports and build
 drawings:
   persist: false
@@ -19,55 +20,29 @@ drawings:
 #   sans: "Noto Sans JP"
 ---
 
-# Welcome to Slidev
+# gRPC 学びました
 
-Presentation slides for developers
-
-<div class="pt-12">
-  <span @click="$slidev.nav.next" class="px-2 py-1 rounded cursor-pointer" hover="bg-white bg-opacity-10">
-    Press Space for next page <carbon:arrow-right class="inline"/>
+<div class="absolute bottom-10">
+  <span class="font-700">
+    山﨑 翔太
   </span>
 </div>
 
-<div class="abs-br m-6 flex gap-2">
-  <button @click="$slidev.nav.openInEditor()" title="Open in Editor" class="text-xl icon-btn opacity-50 !border-none !hover:text-white">
-    <carbon:edit />
-  </button>
-  <a href="https://github.com/slidevjs/slidev" target="_blank" alt="GitHub"
-    class="text-xl icon-btn opacity-50 !border-none !hover:text-white">
-    <carbon-logo-github />
-  </a>
-</div>
-
-<!--
-The last comment block of each slide will be treated as slide notes. It will be visible and editable in Presenter Mode along with the slide. [Read more in the docs](https://sli.dev/guide/syntax.html#notes)
--->
-
 ---
 
-# What is Slidev?
+# gRPC とは
 
-Slidev is a slides maker and presenter designed for developers, consist of the following features
+RPC を HTTP/2 で実現した通信規格のこと。
 
-- 📝 **Text-based** - focus on the content with Markdown, and then style them later
-- 🎨 **Themable** - theme can be shared and used with npm packages
-- 🧑‍💻 **Developer Friendly** - code highlighting, live coding with autocompletion
-- 🤹 **Interactive** - embedding Vue components to enhance your expressions
-- 🎥 **Recording** - built-in recording and camera view
-- 📤 **Portable** - export into PDF, PNGs, or even a hostable SPA
-- 🛠 **Hackable** - anything possible on a webpage
+## RPC(Remote Procedure Call/遠隔手続き呼び出し)
 
-<br>
-<br>
+👉 ネットワーク上の他端末と通信するための仕組みのこと。スタブと呼ばれるコードを通して、アプリケーションが他端末上のサーバーアプリケーションのメソッドを直接呼び出せる。
 
-Read more about [Why Slidev?](https://sli.dev/guide/why)
+![RPC図](/RPC図.png)
 
-<!--
-You can have `style` tag in markdown to override the style for the current page.
-Learn more: https://sli.dev/guide/syntax#embedded-styles
--->
+これをより使いやすく高性能にしたもの
 
-<style>
+<!-- <style>
 h1 {
   background-color: #2B90B6;
   background-image: linear-gradient(45deg, #4EC5D4 10%, #146b8c 20%);
@@ -77,305 +52,112 @@ h1 {
   -webkit-text-fill-color: transparent;
   -moz-text-fill-color: transparent;
 }
-</style>
+</style> -->
 
 ---
 
-# Navigation
-
-Hover on the bottom-left corner to see the navigation's controls panel, [learn more](https://sli.dev/guide/navigation.html)
-
-### Keyboard Shortcuts
-
-|                                                    |                             |
-| -------------------------------------------------- | --------------------------- |
-| <kbd>right</kbd> / <kbd>space</kbd>                | next animation or slide     |
-| <kbd>left</kbd> / <kbd>shift</kbd><kbd>space</kbd> | previous animation or slide |
-| <kbd>up</kbd>                                      | previous slide              |
-| <kbd>down</kbd>                                    | next slide                  |
-
-<!-- https://sli.dev/guide/animations.html#click-animations -->
-
-<img
-  v-click
-  class="absolute -bottom-9 -left-7 w-80 opacity-50"
-  src="https://sli.dev/assets/arrow-bottom-left.svg"
-/>
-
-<p v-after class="absolute bottom-23 left-45 opacity-30 transform -rotate-10">Here!</p>
+<img src="/gRPC.png" class="my-0 mx-auto" />
 
 ---
 
-layout: image-right
-image: https://source.unsplash.com/collection/94734566/1920x1080
+# 何が出来る・出来ないのか
+
+## 👍
+
+- Protocol Buffers というシリアライズフォーマットを使ってデータをシリアライズし、高速な通信を実現
+- Protocol Buffers を用いることで言語に依存せず、一つの .proto ファイルで 12 言語の実装を生成できる
+- microservices 間の通信で高い親和性 ◎
+- HTTP/2 を基に作られており、簡単に HTTP/2 の恩恵を受けられる
+- SSL 通信がデフォルト
+- 4 つの API タイプを作成でき、様々な種類/用途の API を開発できる
+
+1. Unary (一般的なやつ：1 req, 1 res) 👉 モバイルクライアントや Web クライアントをバックエンドと繋げる際に
+2. Server Streaming (client:1 req, server:複数 res) 👉 push 通知
+3. Client Streaming (client: 複数 req, server: 1 res) 👉 ライブストリーミングなど、大容量の動画データを分割してリクエストする際に。
+4. Bi Directional Streaming (client:複数 req, server:複数 res) 👉 チャット、ゲーム
 
 ---
 
-# Code
+## 👎
 
-Use code snippets and get the highlighting directly![^1]
+- ブラウザ(gRPC-Web)から直接 gRPC サーバーを叩くことは現状できない(envoy や nginx みたいなプロキシを挟む必要あり)
 
-```ts {all|2|1-6|9|all}
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  role: string;
-}
+  > HTTP/2 gRPC spec3 をブラウザに実装することは現在不可能です。なぜなら、リクエストに対して十分にきめ細かい制御が可能なブラウザ API が存在しないからです。例えば、HTTP/2 を強制的に使用する方法はありませんし、たとえあったとしても、生の HTTP/2 フレームはブラウザでアクセスすることができません。 [（gRPC 公式より）](https://grpc.io/blog/state-of-grpc-web/#the-grpc-web-spec)
 
-function updateUser(id: number, update: User) {
-  const user = getUser(id);
-  const newUser = { ...user, ...update };
-  saveUser(id, newUser);
-}
-```
-
-<arrow v-click="3" x1="400" y1="420" x2="230" y2="330" color="#564" width="3" arrowSize="1" />
-
-[^1]: [Learn More](https://sli.dev/guide/syntax.html#line-highlighting)
-
-<style>
-.footnotes-sep {
-  @apply mt-20 opacity-10;
-}
-.footnotes {
-  @apply text-sm opacity-75;
-}
-.footnote-backref {
-  display: none;
-}
-</style>
+- データがシリアライズされるのでデバッグしにくい（未経験）
+- 公式含めて日本語のドキュメントが少ない
 
 ---
 
-# Components
-
-<div grid="~ cols-2 gap-4">
-<div>
-
-You can use Vue components directly inside your slides.
-
-We have provided a few built-in components like `<Tweet/>` and `<Youtube/>` that you can use directly. And adding your custom components is also super easy.
-
-```html
-<Counter :count="10" />
-```
-
-<!-- ./components/Counter.vue -->
-<Counter :count="10" m="t-4" />
-
-Check out [the guides](https://sli.dev/builtin/components.html) for more.
-
-</div>
-<div>
-
-```html
-<Tweet id="1390115482657726468" />
-```
-
-<Tweet id="1390115482657726468" scale="0.65" />
-
-</div>
+<div class="my-0 mx-auto">
+  <h1 class="text-center"> さっきから Protocol Buffers ってなんだ？</h1> 
 </div>
 
 ---
 
-## class: px-20
+# Protocol Buffers
 
-# Themes
+データや通信方式を定義するインターフェイス言語（他には GraphQL や OpenAPI）
 
-Slidev comes with powerful theming support. Themes can provide styles, layouts, components, or even configurations for tools. Switching between themes by just **one edit** in your frontmatter:
+```ts
+syntax = "proto3";
 
-<div grid="~ cols-2 gap-2" m="-t-2">
+package chat;
 
-```yaml
----
-theme: default
----
-```
-
-```yaml
----
-theme: seriph
----
-```
-
-<img border="rounded" src="https://github.com/slidevjs/themes/blob/main/screenshots/theme-default/01.png?raw=true">
-
-<img border="rounded" src="https://github.com/slidevjs/themes/blob/main/screenshots/theme-seriph/01.png?raw=true">
-
-</div>
-
-Read more about [How to use a theme](https://sli.dev/themes/use.html) and
-check out the [Awesome Themes Gallery](https://sli.dev/themes/gallery.html).
-
----
-
-## preload: false
-
-# Animations
-
-Animations are powered by [@vueuse/motion](https://motion.vueuse.org/).
-
-```html
-<div v-motion :initial="{ x: -80 }" :enter="{ x: 0 }">Slidev</div>
-```
-
-<div class="w-60 relative mt-6">
-  <div class="relative w-40 h-40">
-    <img
-      v-motion
-      :initial="{ x: 800, y: -100, scale: 1.5, rotate: -50 }"
-      :enter="final"
-      class="absolute top-0 left-0 right-0 bottom-0"
-      src="https://sli.dev/logo-square.png"
-    />
-    <img
-      v-motion
-      :initial="{ y: 500, x: -100, scale: 2 }"
-      :enter="final"
-      class="absolute top-0 left-0 right-0 bottom-0"
-      src="https://sli.dev/logo-circle.png"
-    />
-    <img
-      v-motion
-      :initial="{ x: 600, y: 400, scale: 2, rotate: 100 }"
-      :enter="final"
-      class="absolute top-0 left-0 right-0 bottom-0"
-      src="https://sli.dev/logo-triangle.png"
-    />
-  </div>
-
-  <div
-    class="text-5xl absolute top-14 left-40 text-[#2B90B6] -z-1"
-    v-motion
-    :initial="{ x: -80, opacity: 0}"
-    :enter="{ x: 0, opacity: 1, transition: { delay: 2000, duration: 1000 } }">
-    Slidev
-  </div>
-</div>
-
-<!-- vue script setup scripts can be directly used in markdown, and will only affects current page -->
-<script setup lang="ts">
-const final = {
-  x: 0,
-  y: 0,
-  rotate: 0,
-  scale: 1,
-  transition: {
-    type: 'spring',
-    damping: 10,
-    stiffness: 20,
-    mass: 2
-  }
+service Chat {
+  rpc GetMessages (google.protobuf.Empty) returns (stream Message);
+  rpc PostMessage (Message) returns (Result);
 }
-</script>
 
-<div
-  v-motion
-  :initial="{ x:35, y: 40, opacity: 0}"
-  :enter="{ y: 0, opacity: 1, transition: { delay: 3500 } }">
+message Message {
+  string name = 1;
+  string message = 2;
+  google.protobuf.Timestamp createdAt = 3;
+}
 
-[Learn More](https://sli.dev/guide/animations.html#motion)
+message Result {
+  bool result = 1;
+}
+```
+
+---
+
+## 特徴
+
+- コンパイルすると、各言語で getName() や getMessage()、GetMessages()、PostMessages() などなどの処理が実装されたファイルが出来上がる
+- 「レスポンスとリクエスト」のデータ形式でやりとりが出来る 👉 RESTful API だとエンドポイントを定義してそこにリクエストを叩かないといけない
+- ストリーミングを使うか 👉 stream と付けるだけ
+- エンドポイントのドキュメントがなくても .proto ファイルを見れば理解出来る
+
+---
+
+# 開発の流れ
+
+<div class="text-center">
+proto ファイルを作成して<br /><br />  
+👇<br /><br />
+利用するサーバーそれぞれでコンパイル<br /><br />  
+👇<br /><br />
+作成されたデータを受け渡すメソッドを用いてロジックを実装していく<br /><br /> 
+👇<br /><br />
+のみ<uim-rocket class="text-3xl text-red-400 mx-2" />
 
 </div>
 
 ---
 
-# LaTeX
+# 最後に
 
-LaTeX is supported out-of-box powered by [KaTeX](https://katex.org/).
-
-<br>
-
-Inline $\sqrt{3x-1}+(1+x)^2$
-
-Block
-
-$$
-\begin{array}{c}
-
-\nabla \times \vec{\mathbf{B}} -\, \frac1c\, \frac{\partial\vec{\mathbf{E}}}{\partial t} &
-= \frac{4\pi}{c}\vec{\mathbf{j}}    \nabla \cdot \vec{\mathbf{E}} & = 4 \pi \rho \\
-
-\nabla \times \vec{\mathbf{E}}\, +\, \frac1c\, \frac{\partial\vec{\mathbf{B}}}{\partial t} & = \vec{\mathbf{0}} \\
-
-\nabla \cdot \vec{\mathbf{B}} & = 0
-
-\end{array}
-$$
-
-<br>
-
-[Learn more](https://sli.dev/guide/syntax#latex)
+私は新卒研修最後の成果物作成時に、
+<br />
+PHP の gRPC サーバーを使ったアプリケーションを作ろうと意気込んでいたのですが、
+研修当時は gRPC 公式が PHP はサポートしないと明言をしていて、チュートリアルとか proto ファイルのコンパイラとかありませんでした。（なんか有志の？コンパイラがあった）  
+苦しみつつ調べながら苦労して実装の基盤を作ったのに最終的にコンパイラが上手く動かず、半分以上の時間をドブに捨てた過去があります。  
+<br />
+どうやら gRPC の特徴である streaming の機能と PHP の仕様が上手く噛み合わなくて web-socket で良いでしょってなっていたみたいです。（調べたらいくつか記事が出てきます！）
+<br /><br />
+それが最近ついに公式で PHP での開発をサポートし始めたらしくて、やっとか！！ということで Go を使い触ってみました。（PHP でやれ）
 
 ---
 
-# Diagrams
-
-You can create diagrams / graphs from textual descriptions, directly in your Markdown.
-
-<div class="grid grid-cols-3 gap-10 pt-4 -mb-6">
-
-```mermaid {scale: 0.5}
-sequenceDiagram
-    Alice->John: Hello John, how are you?
-    Note over Alice,John: A typical interaction
-```
-
-```mermaid {theme: 'neutral', scale: 0.8}
-graph TD
-B[Text] --> C{Decision}
-C -->|One| D[Result 1]
-C -->|Two| E[Result 2]
-```
-
-```plantuml {scale: 0.7}
-@startuml
-
-package "Some Group" {
-  HTTP - [First Component]
-  [Another Component]
-}
-
-node "Other Groups" {
-  FTP - [Second Component]
-  [First Component] --> FTP
-}
-
-cloud {
-  [Example 1]
-}
-
-
-database "MySql" {
-  folder "This is my folder" {
-    [Folder 3]
-  }
-  frame "Foo" {
-    [Frame 4]
-  }
-}
-
-
-[Another Component] --> [Example 1]
-[Example 1] --> [Folder 3]
-[Folder 3] --> [Frame 4]
-
-@enduml
-```
-
-</div>
-
-[Learn More](https://sli.dev/guide/syntax.html#diagrams)
-
----
-
-layout: center
-class: text-center
-
----
-
-# Learn More
-
-[Documentations](https://sli.dev) · [GitHub](https://github.com/slidevjs/slidev) · [Showcases](https://sli.dev/showcases.html)
+<img src="/owari.jpeg" class="my-0 mx-auto" />

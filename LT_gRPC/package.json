@@ -11,5 +11,8 @@
     "@slidev/theme-default": "*",
     "@slidev/theme-seriph": "*"
   },
-  "name": "lt-grpc"
+  "name": "lt-grpc",
+  "devDependencies": {
+    "@iconify-json/uim": "^1.1.0"
+  }
 }
